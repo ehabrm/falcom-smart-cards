@@ -7,8 +7,8 @@
 <style>
 :root{--tan:#b79066;--tan-d:#8d6a47;--tan-l:#e9dac6;--brown:#3a2a1a;--muted:#6f6254;--line:#eadfce}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html{-webkit-text-size-adjust:100%}
-body{margin:0;min-height:100vh;color:var(--brown);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Tahoma,"Noto Naskh Arabic",Arial,sans-serif;line-height:1.5;background:radial-gradient(circle at 50% 30%,#fdfbf8,#f3eadf 80%)}
+html{-webkit-text-size-adjust:100%;overscroll-behavior:none}
+body{margin:0;min-height:100vh;min-height:100svh;overscroll-behavior:none;color:var(--brown);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Tahoma,"Noto Naskh Arabic",Arial,sans-serif;line-height:1.5;background:radial-gradient(circle at 50% 30%,#fdfbf8,#f3eadf 80%)}
 .deco{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
 .deco svg{position:absolute}
 .deco .tl{top:0;left:0;width:min(560px,85vw);height:auto}.deco .bt{bottom:0;left:0;width:100%;height:80px}
@@ -72,7 +72,7 @@ html[lang=en] h1{font-size:clamp(28px,8.2vw,44px)}html[lang=en] .role{font-size:
 <div class="notfound" id="notfound"><h2 id="nfTitle"></h2><p id="nfBody"></p></div>
 </div>
 <script>
-const reps={"FLC-001":{name:"محمد رضا",en:"Mohamed Reda",role:"مندوب مصنع أسفلت",roleEn:"Asphalt Plant Sales Representative",phone:"+966 59 757 8219",tel:"+966597578219",wa:"966597578219",region:"المملكة العربية السعودية",regionEn:"Saudi Arabia"}};
+const reps={"FLC-001":{name:"محمد رضا",en:"Mohamed Reda",role:"مندوبنا",roleEn:"Our Representative",phone:"+966 59 757 8219",tel:"+966597578219",wa:"966597578219",region:"المملكة العربية السعودية",regionEn:"Saudi Arabia"}};
 const $=i=>document.getElementById(i);
 const params=new URLSearchParams(location.search);
 let id=(params.get("id")||"FLC-001").toUpperCase();let rep=reps[id];

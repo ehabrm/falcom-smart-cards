@@ -72,25 +72,42 @@ html[lang=en] h1{font-size:clamp(28px,8.2vw,44px)}html[lang=en] .role{font-size:
 <div class="notfound" id="notfound"><h2 id="nfTitle"></h2><p id="nfBody"></p></div>
 </div>
 <script>
-const reps={"FLC-001":{name:"محمد رضا",en:"Mohamed Reda",role:"مندوب المصنع",roleEn:"Factory Representative",phone:"+966 59 757 8219",tel:"+966597578219",wa:"966597578219",region:"المملكة العربية السعودية",regionEn:"Saudi Arabia"}};
+const API="https://simta-cards-prod.ehabrmcr7.workers.dev";const SLUG="falcom";
 const $=i=>document.getElementById(i);
 const params=new URLSearchParams(location.search);
-let id=(params.get("id")||"FLC-001").toUpperCase();let rep=reps[id];
-const notFound=!rep&&!!params.get("id");if(!rep){id="FLC-001";rep=reps[id]}
-let english=params.get("lang")==="en";
-const T={ar:{call:"اتصال",wa:"واتساب",save:"حفظ جهة الاتصال",aboutT:"عن الشركة",aboutP:"فالكوم (FALCOM) شركة متخصصة في إنتاج الأسفلت وتنفيذ أعمال الطرق والبنية التحتية وفق أعلى معايير الجودة.",nfT:"هذه البطاقة غير موجودة",nfB:"الرابط أو الكود غير صحيح. تأكد منه أو تواصل مع الشركة."},
-en:{call:"Call",wa:"WhatsApp",save:"Save contact",aboutT:"About the company",aboutP:"FALCOM is a company specialized in asphalt production and road and infrastructure works, to the highest quality standards.",nfT:"Card not found",nfB:"The link or code is not valid. Please check it or contact the company."}};
+const rawId=params.get("id");let id=(rawId||"FLC-001").toUpperCase();
+let english=params.get("lang")==="en";let rep=null,state="loading";
+const T={ar:{mnT:"الخدمة متوقفة مؤقتاً",mnB:"نقوم حالياً بأعمال صيانة. يرجى المحاولة لاحقاً.",cmT:"هذه البطاقة متوقفة مؤقتاً",cmB:"البطاقة غير متاحة حالياً. يرجى التواصل مع الشركة.",erT:"تعذّر تحميل البطاقة",erB:"تحقق من الاتصال بالإنترنت ثم أعد المحاولة.",retry:"إعادة المحاولة",call:"اتصال",wa:"واتساب",save:"حفظ جهة الاتصال",aboutT:"عن الشركة",aboutP:"فالكوم (FALCOM) شركة متخصصة في إنتاج الأسفلت وتنفيذ أعمال الطرق والبنية التحتية وفق أعلى معايير الجودة.",nfT:"هذه البطاقة غير موجودة",nfB:"الرابط أو الكود غير صحيح. تأكد منه أو تواصل مع الشركة."},
+en:{mnT:"Service temporarily unavailable",mnB:"We are performing maintenance. Please try again later.",cmT:"This card is temporarily unavailable",cmB:"The card is not available right now. Please contact the company.",erT:"Could not load the card",erB:"Check your internet connection and try again.",retry:"Retry",call:"Call",wa:"WhatsApp",save:"Save contact",aboutT:"About the company",aboutP:"FALCOM is a company specialized in asphalt production and road and infrastructure works, to the highest quality standards.",nfT:"Card not found",nfB:"The link or code is not valid. Please check it or contact the company."}};
 const AV='<svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" fill="#efdfcd"/><circle cx="32" cy="24" r="11" fill="#a47c52"/><path d="M9 64c0-14 9-21 23-21s23 7 23 21z" fill="#a47c52"/></svg>';
-function setAvatar(el){el.innerHTML=AV;const im=new Image();im.alt="";im.onload=()=>{el.innerHTML="";el.appendChild(im)};im.src="photos/"+id+".jpg"}
+const fmtPhone=p=>{const m=/^\+966(\d{2})(\d{3})(\d{4})$/.exec(p||"");return m?"+966 "+m[1]+" "+m[2]+" "+m[3]:(p||"")};
+function setAvatar(el){el.innerHTML=AV;if(!rep||!rep.photo)return;const im=new Image();im.alt="";im.onload=()=>{el.innerHTML="";el.appendChild(im)};im.src=rep.photo}
 function setLang(e){english=e;render()}
+function showMsg(t,a,b,retry){$("content").style.display="none";$("notfound").style.display="block";$("nfTitle").textContent=a;let el=$("nfBody");el.textContent=b;const old=$("retryBtn");if(old)old.remove();if(retry){const bt=document.createElement("button");bt.id="retryBtn";bt.type="button";bt.textContent=t.retry;bt.style.cssText="margin-top:14px;padding:10px 20px;border-radius:12px;border:1px solid currentColor;background:none;color:inherit;font:inherit;cursor:pointer";bt.onclick=load;el.parentNode.appendChild(bt)}}
 function render(){const t=english?T.en:T.ar,h=document.documentElement;h.lang=english?"en":"ar";h.dir=english?"ltr":"rtl";
 $("bEn").classList.toggle("on",english);$("bAr").classList.toggle("on",!english);
-if(notFound){$("content").style.display="none";$("notfound").style.display="block";$("nfTitle").textContent=t.nfT;$("nfBody").textContent=t.nfB;return}
+if(state==="loading"){$("content").style.display="none";$("notfound").style.display="none";return}
+if(state==="notfound")return showMsg(t,t.nfT,t.nfB);
+if(state==="maintenance")return showMsg(t,t.mnT,t.mnB);
+if(state==="cardmaint")return showMsg(t,t.cmT,t.cmB);
+if(state==="error")return showMsg(t,t.erT,t.erB,true);
+$("notfound").style.display="none";$("content").style.display="";
 $("name").textContent=english?rep.en:rep.name;setAvatar($("avatar"));$("role").textContent=english?rep.roleEn:rep.role;
 $("callT").textContent=t.call;$("waT").textContent=t.wa;$("saveT").textContent=t.save;$("aboutT").textContent=t.aboutT;$("aboutP").textContent=t.aboutP;
 $("phone").textContent=rep.phone;$("phoneBar").href="tel:"+rep.tel;$("call").href="tel:"+rep.tel;
 $("wa").href="https://wa.me/"+rep.wa;$("wa").target="_blank";$("wa").rel="noopener";
 $("region").textContent=english?rep.regionEn:rep.region}
-function downloadVcard(){const v=["BEGIN:VCARD","VERSION:3.0","FN:"+rep.en,"ORG:FALCOM","TITLE:"+rep.roleEn,"TEL;TYPE=CELL:"+rep.tel,"ADR:;;"+rep.regionEn+";;;;","END:VCARD"].join("\r\n");const b=new Blob([v],{type:"text/vcard;charset=utf-8"}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="FALCOM-"+id+".vcf";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
-render();
+async function load(){state="loading";render();
+if(!/^FLC-\d{3,6}$/.test(id)){state="notfound";return render()}
+const ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),10000);
+try{let q="";if(params.get("preview"))q+="?preview=1";else if(params.get("f"))q+="?f=1";
+const r=await fetch(API+"/api/c/"+SLUG+"/employees/"+encodeURIComponent(id)+q,{signal:ctl.signal,headers:{Accept:"application/json"}});
+if(r.status===200){const d=await r.json();
+rep={name:d.name_ar,en:d.name_en,role:d.title_ar,roleEn:d.title_en,phone:fmtPhone(d.phone),tel:d.phone,wa:String(d.whatsapp||d.phone||"").replace(/\D/g,""),region:d.location_ar,regionEn:d.location_en,photo:d.photo_url?(/^https?:/.test(d.photo_url)?d.photo_url:API+d.photo_url):""};state="ok"}
+else if(r.status===404||r.status===400)state="notfound";
+else if(r.status===503){let c="";try{c=(await r.json()).code}catch(e){}state=c==="card_maintenance"?"cardmaint":"maintenance"}
+else state="error"}catch(e){state="error"}finally{clearTimeout(to)}
+render()}
+function downloadVcard(){if(!rep)return;const v=["BEGIN:VCARD","VERSION:3.0","FN:"+rep.en,"ORG:FALCOM","TITLE:"+rep.roleEn,"TEL;TYPE=CELL:"+rep.tel,"ADR:;;"+rep.regionEn+";;;;","END:VCARD"].join("\r\n");const b=new Blob([v],{type:"text/vcard;charset=utf-8"}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="FALCOM-"+id+".vcf";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
+load();
 </script></body></html>

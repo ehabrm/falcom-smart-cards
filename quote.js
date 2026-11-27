@@ -7,6 +7,7 @@ var CO={nameAr:"فالكوم",nameEn:"FALCOM",ink:"#3a2a1a",accent:"#8d6a47",btn
  {k:"type",t:"select",req:1,lAr:"نوع العمل",lEn:"Type of work",mAr:"نوع العمل",mEn:"Work type",opts:[
   {v:"توريد وفرش أسفلت",en:"Asphalt supply & laying"},{v:"صيانة وترميم",en:"Maintenance & patching"},{v:"إعادة تأهيل طريق",en:"Road rehabilitation"},{v:"أخرى",en:"Other"}]},
  {k:"loc",t:"text",req:1,lAr:"موقع المشروع",lEn:"Project location",pAr:"المدينة، الحي",pEn:"City, district",mAr:"الموقع",mEn:"Location"},
+ {k:"co",t:"text",lAr:"اسم الشركة أو المؤسسة (اختياري)",lEn:"Company or establishment name (optional)",pAr:"مثال: شركة المثال للمقاولات",pEn:"e.g. Example Contracting Co.",mAr:"الشركة أو المؤسسة",mEn:"Company"},
  {k:"area",t:"number",lAr:"المساحة التقريبية (م²) (اختياري)",lEn:"Approximate area (m²) (optional)",mAr:"المساحة",mEn:"Area",uAr:" م²",uEn:" m²"},
  {k:"notes",t:"textarea",lAr:"ملاحظات (اختياري)",lEn:"Notes (optional)",mAr:"ملاحظات",mEn:"Notes"}
  ],

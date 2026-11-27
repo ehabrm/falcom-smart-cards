@@ -117,4 +117,4 @@ render()}
 async function shareCard(){const url=location.origin+location.pathname+"?id="+id;if(navigator.share){try{await navigator.share({title:"FALCOM | "+(english?rep.en:rep.name),url});return}catch(e){if(e&&e.name==="AbortError")return}}try{await navigator.clipboard.writeText(url)}catch(e){}}
 function downloadVcard(){if(!rep)return;const v=["BEGIN:VCARD","VERSION:3.0","FN:"+rep.en,"ORG:FALCOM","TITLE:"+rep.roleEn,"TEL;TYPE=CELL:"+rep.tel,...(rep.email?["EMAIL;TYPE=INTERNET,WORK:"+rep.email]:[]),"URL:"+location.origin+location.pathname+"?id="+id,"ADR:;;"+rep.regionEn+";;;;","END:VCARD"].join("\r\n");const b=new Blob([v],{type:"text/vcard;charset=utf-8"}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="FALCOM-"+id+".vcf";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
 load();
-</script></body></html>
+</script><script src="quote.js"></script></body></html>

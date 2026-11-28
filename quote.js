@@ -8,7 +8,8 @@ var CO={nameAr:"فالكوم",nameEn:"FALCOM",ink:"#3a2a1a",accent:"#8d6a47",btn
   {v:"توريد وفرش أسفلت",en:"Asphalt supply & laying"},{v:"صيانة وترميم",en:"Maintenance & patching"},{v:"إعادة تأهيل طريق",en:"Road rehabilitation"},{v:"أخرى",en:"Other"}]},
  {k:"loc",t:"text",req:1,lAr:"موقع المشروع",lEn:"Project location",pAr:"المدينة، الحي",pEn:"City, district",mAr:"الموقع",mEn:"Location"},
  {k:"co",t:"text",lAr:"اسم الشركة أو المؤسسة (اختياري)",lEn:"Company or establishment name (optional)",pAr:"مثال: شركة المثال للمقاولات",pEn:"e.g. Example Contracting Co.",mAr:"الشركة أو المؤسسة",mEn:"Company"},
- {k:"area",t:"number",lAr:"المساحة التقريبية (م²) (اختياري)",lEn:"Approximate area (m²) (optional)",mAr:"المساحة",mEn:"Area",uAr:" م²",uEn:" m²"},
+ {k:"qty",t:"number",lAr:"الكمية التقريبية (اختياري)",lEn:"Approximate quantity (optional)",mAr:"الكمية",mEn:"Quantity",unitKey:"unit"},
+ {k:"unit",t:"select",lAr:"وحدة الكمية (طن أو م²)",lEn:"Quantity unit (tons or m²)",nomsg:1,opts:[{v:"طن",en:"tons"},{v:"متر مربع (م²)",en:"square meters (m²)"}]},
  {k:"notes",t:"textarea",lAr:"ملاحظات (اختياري)",lEn:"Notes (optional)",mAr:"ملاحظات",mEn:"Notes"}
  ],
  css:".qr-btn{grid-column:1/-1;display:flex;align-items:center;justify-content:center;width:100%;min-height:58px;border-radius:22px;border:0;background:linear-gradient(160deg,#c49d72,#a47c52);color:#fff;font-weight:800;font-size:clamp(15px,4.5vw,19px);line-height:1.2;font-family:inherit;cursor:pointer;padding:10px 12px;box-shadow:0 8px 18px #3a2a1a1c}",
@@ -31,10 +32,12 @@ function isEn(){return CO.en()}
 function msgText(rep,vals,en){
  var t=en?T.en:T.ar,lines=[t.title+" \u2014 "+(en?CO.nameEn:CO.nameAr)];
  CO.fields.forEach(function(f){
+  if(f.nomsg)return;
   var v=String(vals[f.k]||"").trim();if(!v)return;
   if(f.t==="select"&&en){for(var i=0;i<f.opts.length;i++)if(f.opts[i].v===v){v=f.opts[i].en;break}}
   if(f.t==="date")v="\u2066"+v+"\u2069";
   if(f.uAr)v+=en?f.uEn:f.uAr;
+  if(f.unitKey){var uv=String(vals[f.unitKey]||"").trim();if(uv){var ul=uv;if(en){var fu=CO.fields.filter(function(x){return x.k===f.unitKey})[0];for(var j=0;fu&&j<fu.opts.length;j++)if(fu.opts[j].v===uv){ul=fu.opts[j].en;break}}v="\u2066"+v+"\u2069 "+ul}}
   lines.push((en?f.mEn:f.mAr)+": "+v)});
  lines.push("\u2014");lines.push(t.from+" \u00b7 "+rep.id);
  return lines.join("\n")}
@@ -73,6 +76,10 @@ function openSheet(btn){
    sh.appendChild(el("p","qr-note",t.note));
    var sb=el("button","qr-send",t.send);sb.type="button";sb.onclick=function(){
     var miss={};CO.fields.forEach(function(f){if(f.req&&!String(vals[f.k]||"").trim())miss[f.k]=1});
+    var qv=String(vals.qty||"").trim(),uu=String(vals.unit||"").trim();
+    if(qv&&!(parseFloat(qv)>0))miss.qty=1;
+    if(qv&&!uu)miss.unit=1;
+    if(uu&&!qv)miss.qty=1;
     if(Object.keys(miss).length){bad=miss;draw();return}
     ready=true;draw()};
    sh.appendChild(sb)}
@@ -121,3 +128,4 @@ function sync(){
   b.textContent=t.quote})}
 CO.install(sync);
 })();
+
